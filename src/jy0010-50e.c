@@ -153,6 +153,28 @@ const GPathInfo HOUR_HAND_OUTLINE_PATH_POINTS = {
   }
 };
 
+const GPathInfo AMPM_HAND_PATH_POINTS = {
+  4,
+  (GPoint []) {
+    {-1, 0},
+    {1, 0},
+    {1, -10},
+    {-1,  -10},
+  }
+};
+
+const GPathInfo AMPM_HAND_OUTLINE_PATH_POINTS = {
+  4,
+  (GPoint []) {
+    {-2, 11},
+    {2, 11},
+    {2, -11},
+    {-2,  -11},
+  }
+};
+
+GPath ampm_hand_path;
+GPath ampm_hand_outline_path;
 GPath hour_hand_path;
 GPath hour_hand_outline_path;
 GPath minute_hand_path;
