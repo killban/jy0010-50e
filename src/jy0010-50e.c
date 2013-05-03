@@ -20,88 +20,6 @@ Window window;
 
 BmpContainer background_image_container;
 
-// New 0.2
-BmpContainer local_zone_image;
-BmpContainer remote_zone_image;
-// weN 0.2
-
-// New 0.3
-
-const int BIG_DIGIT_IMAGE_RESOURCE_IDS[] = {
-  RESOURCE_ID_IMAGE_NUM_0,
-  RESOURCE_ID_IMAGE_NUM_1,
-  RESOURCE_ID_IMAGE_NUM_2,
-  RESOURCE_ID_IMAGE_NUM_3,
-  RESOURCE_ID_IMAGE_NUM_4,
-  RESOURCE_ID_IMAGE_NUM_5,
-  RESOURCE_ID_IMAGE_NUM_6,
-  RESOURCE_ID_IMAGE_NUM_7,
-  RESOURCE_ID_IMAGE_NUM_8,
-  RESOURCE_ID_IMAGE_NUM_9
-};
-
-#define TOTAL_TIME_DIGITS 4
-BmpContainer time_digits_images[TOTAL_TIME_DIGITS];
-
-
-void set_container_image(BmpContainer *bmp_container, const int resource_id, GPoint origin) {
-
-  layer_remove_from_parent(&bmp_container->layer.layer);
-  bmp_deinit_container(bmp_container);
-
-  bmp_init_container(resource_id, bmp_container);
-
-  GRect frame = layer_get_frame(&bmp_container->layer.layer);
-  frame.origin.x = origin.x;
-  frame.origin.y = origin.y;
-  layer_set_frame(&bmp_container->layer.layer, frame);
-
-  layer_add_child(&window.layer, &bmp_container->layer.layer);
-}
-
-
-unsigned short get_display_hour(unsigned short hour) {
-
-  if (clock_is_24h_style()) {
-    return hour;
-  }
-
-  unsigned short display_hour = hour % 12;
-
-  // Converts "0" to "12"
-  return display_hour ? display_hour : 12;
-
-}
-
-void update_display(PblTm *current_time) {
-
-  unsigned short display_hour = get_display_hour(current_time->tm_hour);
-
-  // TODO: Remove leading zero?
-  set_container_image(&time_digits_images[0], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour/10], GPoint(95, 99));
-  set_container_image(&time_digits_images[1], BIG_DIGIT_IMAGE_RESOURCE_IDS[display_hour%10], GPoint(100, 99));
-
-  set_container_image(&time_digits_images[2], BIG_DIGIT_IMAGE_RESOURCE_IDS[current_time->tm_min/10], GPoint(110, 99));
-  set_container_image(&time_digits_images[3], BIG_DIGIT_IMAGE_RESOURCE_IDS[current_time->tm_min%10], GPoint(115, 99));
-
-  if (!clock_is_24h_style()) {
-    if (display_hour/10 == 0) {
-      layer_remove_from_parent(&time_digits_images[0].layer.layer);
-      bmp_deinit_container(&time_digits_images[0]);
-    }
-  }
-
-}
-
-
-void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t) {
-  (void)ctx;
-
-  update_display(t->tick_time);
-}
-
-// weN 0.3
-
 Layer minute_display_layer;
 Layer hour_display_layer;
 Layer center_display_layer;
@@ -277,25 +195,6 @@ void handle_init(AppContextRef ctx) {
 
   layer_add_child(&window.layer, &background_image_container.layer.layer);
 
-// New 0.2
-
-bmp_init_container(RESOURCE_ID_IMAGE_LON, &local_zone_image);
-
-local_zone_image.layer.layer.frame.origin.x = 24;
-local_zone_image.layer.layer.frame.origin.y = 85;
-
- layer_add_child(&window.layer, &local_zone_image.layer.layer);
-
-bmp_init_container(RESOURCE_ID_IMAGE_BJS, &remote_zone_image);
-
-remote_zone_image.layer.layer.frame.origin.x = 99;
-remote_zone_image.layer.layer.frame.origin.y = 85;
-
- layer_add_child(&window.layer, &remote_zone_image.layer.layer);
-
-// weN 0.2
-
-
   date_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_OPENSANS_REGULAR_14));
   text_layer_init(&date_layer, GRect(55, 110, 34, 20));
   text_layer_set_text_alignment(&date_layer, GTextAlignmentCenter);
@@ -340,25 +239,10 @@ void handle_deinit(AppContextRef ctx) {
 
   bmp_deinit_container(&background_image_container);
 
-// New 0.2
-
-  bmp_deinit_container(&local_zone_image);
-  bmp_deinit_container(&remote_zone_image);
-
-// weN 0.2
-
-// New 0.4
-
-  for (int i = 0; i < TOTAL_TIME_DIGITS; i++) {
-    bmp_deinit_container(&time_digits_images[i]);
-  }
-
-// weN 0.4
-
-
   fonts_unload_custom_font(date_font);
-
 }
+
+
 
 void handle_tick(AppContextRef ctx, PebbleTickEvent *t){
   (void)t;
