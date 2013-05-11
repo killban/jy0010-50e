@@ -27,47 +27,67 @@ Layer center_display_layer;
 Layer second_display_layer;
 #endif
 
+TextLayer local_layer;
+GFont local_font;
+static char local_text[] = "LON";
+
 TextLayer date_layer;
 GFont date_font;
 static char date_text[] = "Sat 13";
 
 const GPathInfo MINUTE_HAND_PATH_POINTS = {
-  4,
+  8,
   (GPoint []) {
-    {-3, 0},
-    {3, 0},
-    {3, -60},
-    {-3,  -60},
+    {0, 9},
+    {2, 6},
+    {4, 0},
+    {2, -50},
+    {0, -61},
+    {-2, -50},
+    {-4, 0},
+    {-2, 6},
   }
 };
 
 const GPathInfo MINUTE_HAND_OUTLINE_PATH_POINTS = {
-  4,
+  8,
   (GPoint []) {
-    {-4, 0},
-    {4, 0},
-    {4, -61},
-    {-4,  -61},
+    {0, 10},
+    {3, 7}, 
+    {5, 0},
+    {3, -51},
+    {0, -62},
+    {-3, -51},
+    {-5, 0},
+    {-3, 7},
   }
 };
 
 const GPathInfo HOUR_HAND_PATH_POINTS = {
-  4,
+  8,
   (GPoint []) {
-    {-3, 0},
-    {3, 0},
-    {3, -40},
-    {-3,  -40},
+    {0, 10},
+    {3, 7},
+    {5, 0},
+    {3, -27},
+    {0, -37},
+    {-3, -27},
+    {-5, 0},
+    {-3, 7},
   }
 };
 
 const GPathInfo HOUR_HAND_OUTLINE_PATH_POINTS = {
   4,
   (GPoint []) {
-    {-4, 16},
-    {4, 16},
-    {4, -41},
-    {-4,  -41},
+    {0, 10},
+    {3, 7},
+    {5, 0},
+    {3, -27},
+    {0, -37},
+    {-3, -27},
+    {-5, 0},
+    {-3, 7},
   }
 };
 
@@ -151,7 +171,7 @@ void minute_display_layer_update_callback(Layer *me, GContext* ctx) {
   gpath_rotate_to(&minute_hand_path, (TRIG_MAX_ANGLE / 360) * angle);
   gpath_rotate_to(&minute_hand_outline_path, (TRIG_MAX_ANGLE / 360) * angle);
   
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, GColorWhite);
   gpath_draw_filled(ctx, &minute_hand_outline_path);
   graphics_context_set_fill_color(ctx, GColorWhite);
   gpath_draw_filled(ctx, &minute_hand_path);
@@ -182,6 +202,12 @@ void draw_date(){
   text_layer_set_text(&date_layer, date_text);
 }
 
+void draw_local(){
+
+  text_layer_set_text(&local_layer, local_text);
+
+}
+
 void handle_init(AppContextRef ctx) {
   (void)ctx;
 
@@ -203,6 +229,15 @@ void handle_init(AppContextRef ctx) {
   text_layer_set_font(&date_layer, date_font);
   layer_add_child(&window.layer, &date_layer.layer);
   draw_date();
+
+  local_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_OPENSANS_REGULAR_14));
+  text_layer_init(&local_layer, GRect(21, 83, 28, 13));
+  text_layer_set_text_alignment(&local_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(&local_layer, GColorBlack);
+  text_layer_set_background_color(&local_layer, GColorClear);
+  text_layer_set_font(&local_layer, local_font);
+  layer_add_child(&window.layer, &local_layer.layer);
+  draw_local();
 
   layer_init(&hour_display_layer, window.layer.frame);
   hour_display_layer.update_proc = &hour_display_layer_update_callback;
@@ -240,6 +275,8 @@ void handle_deinit(AppContextRef ctx) {
   bmp_deinit_container(&background_image_container);
 
   fonts_unload_custom_font(date_font);
+
+  fonts_unload_custom_font(local_font);
 }
 
 
@@ -264,6 +301,7 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *t){
   if(t->tick_time->tm_min==0&&t->tick_time->tm_hour==0)
   {
      draw_date();
+     draw_local();
   }
 */
 
@@ -280,6 +318,7 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *t){
            if(t->tick_time->tm_min==0&&t->tick_time->tm_hour==0)
            {
               draw_date();
+              draw_local();
            }
 #if HOUR_VIBRATION
            if(t->tick_time->tm_min==0 &&
