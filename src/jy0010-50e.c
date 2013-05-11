@@ -78,7 +78,7 @@ const GPathInfo HOUR_HAND_PATH_POINTS = {
 };
 
 const GPathInfo HOUR_HAND_OUTLINE_PATH_POINTS = {
-  4,
+  8,
   (GPoint []) {
     {0, 10},
     {3, 7},
